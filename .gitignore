@@ -1,0 +1,11 @@
+# Python environment and cache
+__pycache__/
+*.pyc
+.venv/
+env/
+.streamlit/
+
+# App Data (Do not upload your images or expert results to GitHub)
+data/patches/*
+!data/patches/.gitkeep
+data/expert_annotations.csv
