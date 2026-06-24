@@ -9,3 +9,4 @@ env/
 data/patches/*
 !data/patches/.gitkeep
 data/expert_annotations.csv
+fibrosis-annotation-app/data/patches
