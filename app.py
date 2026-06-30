@@ -7,22 +7,45 @@ from streamlit_gsheets import GSheetsConnection
 
 # --- CONFIGURATION ---
 IMAGE_DIR = "data/patches"
-CLASSES = ["Compact", "Diffuse", "Interstitial"]
+REFERENCE_DIR = "data/references"
+CLASSES = ["Compact", "Diffuse", "Interstitial", "Leftover"]
 
 st.set_page_config(page_title="Fibrosis Patch Annotator", layout="centered")
+
+# --- SIDEBAR: REFERENCE GUIDE ---
+# This creates a persistent left-hand menu for your experts
+st.sidebar.header("📖 Reference Guide")
+st.sidebar.info("Use these examples to guide your classification.")
+
+def load_sidebar_image(filename, caption):
+    path = os.path.join(REFERENCE_DIR, filename)
+    if os.path.exists(path):
+        try:
+            img = Image.open(path)
+            st.sidebar.image(img, caption=caption, use_container_width=True)
+        except Exception as e:
+            st.sidebar.error(f"Error loading {filename}")
+    else:
+        st.sidebar.warning(f"Missing reference: {filename}")
+
+# Load the three reference images
+load_sidebar_image("compact.png", "✅ Compact")
+load_sidebar_image("diffuse.png", "✅ Diffuse")
+load_sidebar_image("interstitial.png", "✅ Interstitial")
+
+
+# --- MAIN APP ---
 st.title("Fibrosis Patch Classification")
 
 # --- INITIALIZE GOOGLE SHEETS CONNECTION ---
-# This connects to the sheet defined in your Streamlit secrets
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Fetch existing data from Google Sheets (clearing cache to ensure it's fresh)
 st.cache_data.clear()
 try:
     df_existing = conn.read(worksheet="Sheet1", usecols=[0, 1, 2])
-    df_existing = df_existing.dropna(how="all") # Clean up empty rows
+    df_existing = df_existing.dropna(how="all") 
 except Exception as e:
-    st.error(f"Could not connect to Google Sheets. Check your setup. Errore dettagliato: {e}")
+    st.error(f"Could not connect to Google Sheets. Check your setup. Error: {e}")
     st.stop()
 
 # --- STEP 1: EXPERT LOGIN ---
@@ -45,7 +68,6 @@ if "initialized" not in st.session_state:
         st.warning(f"No images found in '{IMAGE_DIR}'.")
         st.stop()
         
-    # Filter out what THIS expert has already labeled based on the Google Sheet
     if not df_existing.empty:
         labeled_by_user = df_existing[df_existing["expert_id"] == st.session_state.expert_id]["image_name"].tolist()
     else:
@@ -82,7 +104,6 @@ try:
 except Exception as e:
     st.error(f"Error loading image {current_image_name}: {e}")
 
-# Function to save decision to Google Sheets
 def save_choice(label):
     new_row = pd.DataFrame([{
         "expert_id": st.session_state.expert_id,
@@ -90,16 +111,14 @@ def save_choice(label):
         "expert_label": label
     }])
     
-    # Re-read the latest sheet data to prevent overwriting if multiple experts are online
     current_df = conn.read(worksheet="Sheet1", usecols=[0, 1, 2]).dropna(how="all")
     updated_df = pd.concat([current_df, new_row], ignore_index=True)
     
-    # Push updated table back to Google Sheets
     conn.update(worksheet="Sheet1", data=updated_df)
     
     st.session_state.current_index += 1
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     if st.button(CLASSES[0], use_container_width=True):
@@ -112,4 +131,8 @@ with col2:
 with col3:
     if st.button(CLASSES[2], use_container_width=True):
         save_choice(CLASSES[2])
+        st.rerun()
+with col4:
+    if st.button(CLASSES[3], use_container_width=True):
+        save_choice(CLASSES[3])
         st.rerun()
