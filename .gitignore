@@ -5,11 +5,9 @@ __pycache__/
 env/
 .streamlit/
 
-# App Data (Do not upload your images or expert results to GitHub)
-data/patches/*
-!data/patches/.gitkeep
+# App Data 
+# (Images are now allowed to upload! We are only blocking the local CSV)
 data/expert_annotations.csv
-fibrosis-annotation-app/data/patches
 
 # Explicitly protect secrets
 secrets.toml
