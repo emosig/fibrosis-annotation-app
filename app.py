@@ -22,7 +22,7 @@ try:
     df_existing = conn.read(worksheet="Sheet1", usecols=[0, 1, 2])
     df_existing = df_existing.dropna(how="all") # Clean up empty rows
 except Exception as e:
-    st.error("Could not connect to Google Sheets. Check your setup.")
+    st.error(f"Could not connect to Google Sheets. Check your setup. Errore dettagliato: {e}")
     st.stop()
 
 # --- STEP 1: EXPERT LOGIN ---

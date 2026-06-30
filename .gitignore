@@ -10,3 +10,7 @@ data/patches/*
 !data/patches/.gitkeep
 data/expert_annotations.csv
 fibrosis-annotation-app/data/patches
+
+# Explicitly protect secrets
+secrets.toml
+.streamlit/secrets.toml
