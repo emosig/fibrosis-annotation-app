@@ -13,25 +13,27 @@ CLASSES = ["Compact", "Diffuse", "Interstitial", "Leftover"]
 st.set_page_config(page_title="Fibrosis Patch Annotator", layout="centered")
 
 # --- SIDEBAR: REFERENCE GUIDE ---
-# This creates a persistent left-hand menu for your experts
 st.sidebar.header("📖 Reference Guide")
 st.sidebar.info("Use these examples to guide your classification.")
 
-def load_sidebar_image(filename, caption):
+# UPDATE 1: Create 3 columns in the sidebar to put references side-by-side (prevents vertical scrolling)
+ref_col1, ref_col2, ref_col3 = st.sidebar.columns(3)
+
+def load_sidebar_image(col, filename, caption):
     path = os.path.join(REFERENCE_DIR, filename)
     if os.path.exists(path):
         try:
             img = Image.open(path)
-            st.sidebar.image(img, caption=caption, use_container_width=True)
+            col.image(img, caption=caption, use_container_width=True)
         except Exception as e:
-            st.sidebar.error(f"Error loading {filename}")
+            col.error(f"Error loading {filename}")
     else:
-        st.sidebar.warning(f"Missing reference: {filename}")
+        col.warning(f"Missing reference: {filename}")
 
-# Load the three reference images
-load_sidebar_image("compact.png", "✅ Compact")
-load_sidebar_image("diffuse.png", "✅ Diffuse")
-load_sidebar_image("interstitial.png", "✅ Interstitial")
+# Load the three reference images into their respective columns
+load_sidebar_image(ref_col1, "compact.png", "Compact")
+load_sidebar_image(ref_col2, "diffuse.png", "Diffuse")
+load_sidebar_image(ref_col3, "interstitial.png", "Inter.")
 
 
 # --- MAIN APP ---
@@ -100,7 +102,13 @@ st.write(f"Patch {idx + 1} of {len(images)} remaining this session.")
 
 try:
     img = Image.open(image_path)
-    st.image(img, use_container_width=True)
+    
+    # UPDATE 2: Center the image and shrink it by placing it in a narrower middle column.
+    # The [1, 2, 1] means the image takes 50% width. Change to [1, 3, 1] to make it slightly bigger.
+    spacer_left, img_col, spacer_right = st.columns([1, 2, 1])
+    with img_col:
+        st.image(img, use_container_width=True)
+        
 except Exception as e:
     st.error(f"Error loading image {current_image_name}: {e}")
 
