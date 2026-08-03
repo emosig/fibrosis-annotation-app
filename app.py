@@ -16,8 +16,9 @@ st.set_page_config(page_title="Fibrosis Patch Annotator", layout="centered")
 st.sidebar.header("📖 Reference Guide")
 st.sidebar.info("Use these examples to guide your classification.")
 
-# UPDATE 1: Create 3 columns in the sidebar to put references side-by-side (prevents vertical scrolling)
-ref_col1, ref_col2, ref_col3 = st.sidebar.columns(3)
+# Creiamo una griglia 2x2 per le 4 immagini
+ref_col1, ref_col2 = st.sidebar.columns(2)
+ref_col3, ref_col4 = st.sidebar.columns(2)
 
 def load_sidebar_image(col, filename, caption):
     path = os.path.join(REFERENCE_DIR, filename)
@@ -30,11 +31,11 @@ def load_sidebar_image(col, filename, caption):
     else:
         col.warning(f"Missing reference: {filename}")
 
-# Load the three reference images into their respective columns
+# Carichiamo le 4 reference nelle rispettive colonne
 load_sidebar_image(ref_col1, "compact.png", "Compact")
 load_sidebar_image(ref_col2, "diffuse.png", "Diffuse")
 load_sidebar_image(ref_col3, "interstitial.png", "Inter.")
-
+load_sidebar_image(ref_col4, "heart.png", "Glashan et al. (2018)")
 
 # --- MAIN APP ---
 st.title("Fibrosis Patch Classification")
